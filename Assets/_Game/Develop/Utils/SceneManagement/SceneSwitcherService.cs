@@ -1,0 +1,43 @@
+using System;
+using System.Collections;
+using _Game.Develop.Infrastructure;
+using _Game.Develop.Infrastructure.DI;
+using _MiniGame;
+using Object = UnityEngine.Object;
+
+namespace _Game.Develop.Utils.SceneManagement
+{
+    public class SceneSwitcherService
+    {
+        private readonly DIContainer _container;
+        private readonly ILoadingScreen _loadingScreen;
+        private readonly SceneLoaderService _sceneLoaderService;
+
+        public SceneSwitcherService(DIContainer container)
+        {
+            _container = container;
+
+            _loadingScreen = _container.Resolve<ILoadingScreen>();
+            _sceneLoaderService = _container.Resolve<SceneLoaderService>();
+        }
+
+        public IEnumerator ProcessSwitchTo(SceneName sceneName)
+        {
+            _loadingScreen.Show();
+
+            yield return _sceneLoaderService.LoadAsync(SceneName.Empty);
+            yield return _sceneLoaderService.LoadAsync(sceneName);
+
+            SceneBootstrap bootstrap = Object.FindObjectOfType<SceneBootstrap>();
+
+            if (bootstrap == null)
+                throw new Exception($"Can't find {sceneName.ToString()} scene bootstrap");
+
+            yield return bootstrap.Initialize(_container);
+
+            _loadingScreen.Hide();
+
+            bootstrap.Run();
+        }
+    }
+}
