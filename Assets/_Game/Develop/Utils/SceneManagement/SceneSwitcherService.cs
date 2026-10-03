@@ -9,19 +9,19 @@ namespace _Game.Develop.Utils.SceneManagement
 {
     public class SceneSwitcherService
     {
-        private readonly DIContainer _container;
+        private readonly DIContainer _globalContainer;
         private readonly ILoadingScreen _loadingScreen;
         private readonly SceneLoaderService _sceneLoaderService;
 
-        public SceneSwitcherService(DIContainer container)
+        public SceneSwitcherService(DIContainer globalContainer)
         {
-            _container = container;
+            _globalContainer = globalContainer;
 
-            _loadingScreen = _container.Resolve<ILoadingScreen>();
-            _sceneLoaderService = _container.Resolve<SceneLoaderService>();
+            _loadingScreen = _globalContainer.Resolve<ILoadingScreen>();
+            _sceneLoaderService = _globalContainer.Resolve<SceneLoaderService>();
         }
 
-        public IEnumerator ProcessSwitchTo(SceneName sceneName)
+        public IEnumerator ProcessSwitchTo(SceneName sceneName, ISceneData sceneData = null)
         {
             _loadingScreen.Show();
 
@@ -33,7 +33,10 @@ namespace _Game.Develop.Utils.SceneManagement
             if (bootstrap == null)
                 throw new Exception($"Can't find {sceneName.ToString()} scene bootstrap");
 
-            yield return bootstrap.Initialize(_container);
+            DIContainer sceneContainer = new(_globalContainer);
+            bootstrap.ProcessRegistrations(sceneContainer, sceneData);
+
+            yield return bootstrap.Initialize();
 
             _loadingScreen.Hide();
 

@@ -10,17 +10,16 @@ namespace _Game.Develop.Infrastructure.EntryPoint
 {
     public class GameEntryPoint : MonoBehaviour
     {
-        private DIContainer _container;
+        private DIContainer _globalContainer;
 
         private void Awake()
         {
             SetupAppSettings();
 
-            _container = new DIContainer();
-            EntryPointRegistrations.Process(_container);
+            _globalContainer = new DIContainer();
+            GlobalRegistrations.Process(_globalContainer);
 
-            ICoroutinesRunner coroutinesRunner = _container.Resolve<ICoroutinesRunner>();
-            Debug.Log(coroutinesRunner);
+            ICoroutinesRunner coroutinesRunner = _globalContainer.Resolve<ICoroutinesRunner>();
             coroutinesRunner.Perform(InitializeProcess());
         }
 
@@ -33,12 +32,12 @@ namespace _Game.Develop.Infrastructure.EntryPoint
 
         private IEnumerator InitializeProcess()
         {
-            ILoadingScreen loadingScreen = _container.Resolve<ILoadingScreen>();
-            SceneSwitcherService sceneSwitcherService = _container.Resolve<SceneSwitcherService>();
+            ILoadingScreen loadingScreen = _globalContainer.Resolve<ILoadingScreen>();
+            SceneSwitcherService sceneSwitcherService = _globalContainer.Resolve<SceneSwitcherService>();
 
             loadingScreen.Show();
 
-            ConfigProviderService configsProvider = _container.Resolve<ConfigProviderService>();
+            ConfigProviderService configsProvider = _globalContainer.Resolve<ConfigProviderService>();
 
             yield return configsProvider.LoadAsync();
             yield return new WaitForSeconds(3f);

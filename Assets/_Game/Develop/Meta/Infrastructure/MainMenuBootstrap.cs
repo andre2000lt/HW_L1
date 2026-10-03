@@ -1,7 +1,7 @@
 using System.Collections;
 using _Game.Develop.Infrastructure;
 using _Game.Develop.Infrastructure.DI;
-using _Game.Develop.Utils.CorutinesManagement;
+using _Game.Develop.Utils.ControllersManagement;
 using _Game.Develop.Utils.SceneManagement;
 using UnityEngine;
 
@@ -11,20 +11,22 @@ namespace _Game.Develop.Meta.Infrastructure
     {
         private DIContainer _container;
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.F))
-            {
-                SceneSwitcherService sceneSwitcher = _container.Resolve<SceneSwitcherService>();
-                ICoroutinesRunner coroutinesRunner = _container.Resolve<ICoroutinesRunner>();
+        private MainMenu _mainMenu;
+        private MainMenuController _mainMenuController;
 
-                coroutinesRunner.Perform(sceneSwitcher.ProcessSwitchTo(SceneName.Gameplay));
-            }
-        }
-
-        public override IEnumerator Initialize(DIContainer container)
+        public override void ProcessRegistrations(DIContainer container, ISceneData sceneData)
         {
             _container = container;
+
+            MainMenuContextRegistrations.Process(_container);
+        }
+
+        public override IEnumerator Initialize()
+        {
+            _mainMenu = new MainMenu(_container);
+
+            MainMenuControllersFactory controllersFactory = _container.Resolve<MainMenuControllersFactory>();
+            _mainMenuController = controllersFactory.CreateMainMenuController(_mainMenu);
 
             yield return new WaitForSeconds(0.5f);
 
@@ -33,7 +35,12 @@ namespace _Game.Develop.Meta.Infrastructure
 
         public override void Run()
         {
-            Debug.Log("MainMenu Bootstrap Run");
+            _mainMenuController.Enable();
+        }
+
+        private void Update()
+        {
+            _mainMenuController?.Update(Time.deltaTime);
         }
     }
 }

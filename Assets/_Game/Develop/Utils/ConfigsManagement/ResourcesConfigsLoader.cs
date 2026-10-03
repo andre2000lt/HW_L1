@@ -10,7 +10,7 @@ namespace _Game.Develop.Utils.ConfigServices
     {
         private Dictionary<Type, string> _configPathByType = new()
         {
-            { typeof(TestConfig), "Configs/TestConfig" }
+            { typeof(LevelConfigs), "Configs/LevelConfigs" }
         };
 
 

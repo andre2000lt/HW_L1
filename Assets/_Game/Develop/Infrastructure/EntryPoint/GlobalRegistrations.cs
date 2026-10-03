@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace _Game.Develop.Infrastructure.EntryPoint
 {
-    public static class EntryPointRegistrations
+    public static class GlobalRegistrations
     {
         public static void Process(DIContainer container)
         {
