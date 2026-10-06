@@ -4,6 +4,7 @@ using _Game.Develop.Utils.CorutinesManagement;
 using _Game.Develop.Utils.SceneManagement;
 using _MiniGame;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace _Game.Develop.Infrastructure.EntryPoint
 {

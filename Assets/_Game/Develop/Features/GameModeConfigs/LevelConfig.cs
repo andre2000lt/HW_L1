@@ -6,6 +6,6 @@ namespace _Game.Develop.Utils.ConfigServices.Configs
     public class LevelConfig : ScriptableObject
     {
         [field: SerializeField]
-        public GameModeType GameMode { get; private set; }
+        public string ValidSymbols { get; private set; }
     }
 }

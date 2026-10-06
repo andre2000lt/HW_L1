@@ -1,5 +1,4 @@
 using System.Collections;
-using _Game.Develop.Infrastructure.DI;
 using _Game.Develop.Utils.ConfigServices.Configs;
 using _Game.Develop.Utils.CorutinesManagement;
 using _Game.Develop.Utils.SceneManagement;
@@ -13,17 +12,23 @@ namespace _Game.Develop.Gameplay.Infrastructure
         private const KeyCode RestartKey = KeyCode.Space;
 
         private readonly LevelConfig _levelConfig;
-        private readonly DIContainer _container;
         private GameMode _gameMode;
 
-        private ICoroutinesRunner _coroutinesRunner;
+        private readonly GameModeFactory _gameModeFactory;
+        private readonly ICoroutinesRunner _coroutinesRunner;
+        private readonly SceneSwitcherService _sceneSwitcher;
 
-        public GamePlayCycle(LevelConfig levelConfig, DIContainer container)
+        public GamePlayCycle(
+            LevelConfig levelConfig,
+            GameModeFactory gameModeFactory,
+            ICoroutinesRunner coroutinesRunner,
+            SceneSwitcherService sceneSwitcher
+        )
         {
             _levelConfig = levelConfig;
-            _container = container;
-
-            _coroutinesRunner = _container.Resolve<ICoroutinesRunner>();
+            _gameModeFactory = gameModeFactory;
+            _coroutinesRunner = coroutinesRunner;
+            _sceneSwitcher = sceneSwitcher;
         }
 
         public void Update(float deltaTime)
@@ -33,7 +38,7 @@ namespace _Game.Develop.Gameplay.Infrastructure
 
         public IEnumerator Launch()
         {
-            _gameMode = new GameMode(_container, _levelConfig);
+            _gameMode = _gameModeFactory.CreateGameMode(_levelConfig);
             _gameMode.GameWon += OnGameWon;
             _gameMode.GameLost += OnGameLost;
 
@@ -72,8 +77,7 @@ namespace _Game.Develop.Gameplay.Infrastructure
             Debug.Log($"Press {RestartKey}");
             yield return new WaitUntil(() => Input.GetKeyDown(RestartKey));
 
-            SceneSwitcherService sceneSwitcher = _container.Resolve<SceneSwitcherService>();
-            yield return sceneSwitcher.ProcessSwitchTo(SceneName.MainMenu);
+            yield return _sceneSwitcher.ProcessSwitchTo(SceneName.MainMenu);
         }
     }
 }

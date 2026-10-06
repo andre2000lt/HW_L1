@@ -1,5 +1,4 @@
 using System;
-using _Game.Develop.Infrastructure.DI;
 using _Game.Develop.Utils.ConfigServices.Configs;
 using _Game.Develop.Utils.ControllersManagement;
 
@@ -15,11 +14,9 @@ namespace _Game.Develop.Gameplay.Infrastructure
 
         private bool _isRunning;
 
-        public GameMode(DIContainer container, LevelConfig levelConfig)
+        public GameMode(GamePlayFactory gamePlayFactory, GamePlayControllersFactory controllersFactory, LevelConfig levelConfig)
         {
-            _gamePlay = new GamePlay(levelConfig);
-
-            GamePlayControllersFactory controllersFactory = container.Resolve<GamePlayControllersFactory>();
+            _gamePlay = gamePlayFactory.CreateGamePlay(levelConfig);
             _gamePlayController = controllersFactory.CreateGamePlayController(_gamePlay);
         }
 

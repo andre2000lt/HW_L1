@@ -1,4 +1,3 @@
-using _Game.Develop.Utils;
 using _Game.Develop.Utils.ConfigServices.Configs;
 using UnityEngine;
 
@@ -8,11 +7,7 @@ namespace _Game.Develop.Gameplay
     {
         private const int wordLength = 5;
 
-        private const string AllLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        private const string AllNumbers = "0123456789";
-
         private string _word;
-
         private int _currentIndex;
 
         public GameStatus GameStatus { get; private set; }
@@ -20,18 +15,7 @@ namespace _Game.Develop.Gameplay
 
         public GamePlay(LevelConfig levelConfig)
         {
-            GameModeType gameMode = levelConfig.GameMode;
-
-            switch (gameMode)
-            {
-                case GameModeType.Letters:
-                    ValidSymbols = AllLetters;
-                    break;
-
-                case GameModeType.Numbers:
-                    ValidSymbols = AllNumbers;
-                    break;
-            }
+            ValidSymbols = levelConfig.ValidSymbols;
         }
 
         public void StartGame()

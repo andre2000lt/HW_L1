@@ -1,5 +1,4 @@
 using _Game.Develop.Gameplay.Infrastructure;
-using _Game.Develop.Infrastructure.DI;
 using _Game.Develop.Utils;
 using _Game.Develop.Utils.ConfigServices;
 using _Game.Develop.Utils.ConfigServices.Configs;
@@ -11,26 +10,29 @@ namespace _Game.Develop.Meta
 {
     public class MainMenu
     {
-        private readonly DIContainer _container;
+        private readonly SceneSwitcherService _sceneSwitcher;
+        private readonly ICoroutinesRunner _coroutinesRunner;
 
+        private readonly LevelConfigs _levelConfigs;
 
-        public MainMenu(DIContainer container)
+        public MainMenu(
+            SceneSwitcherService sceneSwitcher,
+            ConfigProviderService configProvider,
+            ICoroutinesRunner coroutinesRunner
+        )
         {
-            _container = container;
+            _sceneSwitcher = sceneSwitcher;
+            _coroutinesRunner = coroutinesRunner;
+
+            _levelConfigs = configProvider.GetConfig<LevelConfigs>();
         }
 
         public void StartGame(KeyCode keyCode)
         {
-            SceneSwitcherService sceneSwitcher = _container.Resolve<SceneSwitcherService>();
-            ConfigProviderService configsProvider = _container.Resolve<ConfigProviderService>();
-            ICoroutinesRunner coroutinesRunner = _container.Resolve<ICoroutinesRunner>();
-
-            LevelConfigs LevelConfigs = configsProvider.GetConfig<LevelConfigs>();
-
             int id = KeyCodeConverter.ToInt(keyCode);
-            LevelConfig levelConfig = LevelConfigs.GetConfigBy(id);
+            LevelConfig levelConfig = _levelConfigs.GetConfigBy(id);
 
-            coroutinesRunner.Perform(sceneSwitcher.ProcessSwitchTo(SceneName.Gameplay, new GameplaySceneData(levelConfig)));
+            _coroutinesRunner.Perform(_sceneSwitcher.ProcessSwitchTo(SceneName.Gameplay, new GameplaySceneData(levelConfig)));
         }
     }
 }

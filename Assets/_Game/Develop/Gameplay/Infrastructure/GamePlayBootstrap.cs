@@ -36,7 +36,9 @@ namespace _Game.Develop.Gameplay.Infrastructure
         public override IEnumerator Initialize()
         {
             LevelConfig LevelConfig = _gameplaySceneData.LevelConfig;
-            _gamePlayCycle = new GamePlayCycle(LevelConfig, _container);
+
+            GamePlayCycleFactory gamePlayCycleFactory = _container.Resolve<GamePlayCycleFactory>();
+            _gamePlayCycle = gamePlayCycleFactory.CreateGamePlayCycle(LevelConfig);
 
             yield return new WaitForSeconds(0.5f);
 
