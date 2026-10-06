@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
 using _Game.Develop.Infrastructure.DI;
+using _Game.Develop.IReadOnlyReactVariable;
+using _Game.Develop.Meta.Features;
 using _Game.Develop.Utils.ConfigServices;
 using _Game.Develop.Utils.CorutinesManagement;
 using _Game.Develop.Utils.SceneManagement;
@@ -18,6 +22,19 @@ namespace _Game.Develop.Infrastructure.EntryPoint
             container.RegisterAsSingleton<ILoadingScreen>(CreateLoadingScreen);
             container.RegisterAsSingleton(CreateSceneLoaderService);
             container.RegisterAsSingleton(CreateSceneSwitcherService);
+            container.RegisterAsSingleton(CreateWalletService);
+        }
+
+        private static WalletService CreateWalletService(DIContainer container)
+        {
+            Dictionary<CurrencyType, ReactVariable<int>> currencies = new();
+
+            foreach (CurrencyType currencyType in Enum.GetValues(typeof(CurrencyType)))
+            {
+                currencies[currencyType] = new ReactVariable<int>();
+            }
+
+            return new WalletService(currencies);
         }
 
         private static SceneSwitcherService CreateSceneSwitcherService(DIContainer container)
