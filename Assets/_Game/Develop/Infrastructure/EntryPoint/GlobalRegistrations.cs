@@ -5,6 +5,11 @@ using _Game.Develop.IReadOnlyReactVariable;
 using _Game.Develop.Meta.Features;
 using _Game.Develop.Utils.ConfigServices;
 using _Game.Develop.Utils.CorutinesManagement;
+using _Game.Develop.Utils.DataManagement;
+using _Game.Develop.Utils.DataManagement.DataProviders;
+using _Game.Develop.Utils.DataManagement.DataRepositories;
+using _Game.Develop.Utils.DataManagement.KeysStorages;
+using _Game.Develop.Utils.DataManagement.Serializers;
 using _Game.Develop.Utils.SceneManagement;
 using _MiniGame;
 using UnityEngine;
@@ -23,6 +28,27 @@ namespace _Game.Develop.Infrastructure.EntryPoint
             container.RegisterAsSingleton(CreateSceneLoaderService);
             container.RegisterAsSingleton(CreateSceneSwitcherService);
             container.RegisterAsSingleton(CreateWalletService);
+            container.RegisterAsSingleton(CreatePlayerDataProvider);
+            container.RegisterAsSingleton<ISaveLoadService>(CreateSaveLoadService);
+        }
+
+        private static PlayerDataProvider CreatePlayerDataProvider(DIContainer container)
+        {
+            ISaveLoadService saveLoadService = container.Resolve<ISaveLoadService>();
+            ConfigProviderService configProviderService = container.Resolve<ConfigProviderService>();
+
+            return new PlayerDataProvider(saveLoadService, configProviderService);
+        }
+
+        private static SaveLoadService CreateSaveLoadService(DIContainer container)
+        {
+            IDataKeysStorage keysStorage = new MapDataKeysStorage();
+            IDataSerializer serializer = new JsonSerializer();
+
+            string path = Application.isEditor ? Application.dataPath : Application.persistentDataPath;
+            IDataRepository repository = new LocalFileDataRepository(path, "json");
+
+            return new SaveLoadService(serializer, keysStorage, repository);
         }
 
         private static WalletService CreateWalletService(DIContainer container)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using _Game.Develop.Gameplay;
 using _Game.Develop.Utils.ConfigServices.Configs;
 using UnityEngine;
 
@@ -10,7 +11,8 @@ namespace _Game.Develop.Utils.ConfigServices
     {
         private Dictionary<Type, string> _configPathByType = new()
         {
-            { typeof(LevelConfigs), "Configs/LevelConfigs" }
+            { typeof(LevelConfigs), "Configs/LevelConfigs" },
+            { typeof(DefaultCurrencyConfig), "Configs/PlayerData/DefaultCurrencyConfig" }
         };
 
 

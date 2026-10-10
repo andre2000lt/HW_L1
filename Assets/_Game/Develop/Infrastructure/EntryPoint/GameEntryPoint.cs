@@ -2,6 +2,7 @@ using System.Collections;
 using _Game.Develop.Infrastructure.DI;
 using _Game.Develop.Utils.ConfigServices;
 using _Game.Develop.Utils.CorutinesManagement;
+using _Game.Develop.Utils.DataManagement.DataProviders;
 using _Game.Develop.Utils.SceneManagement;
 using _MiniGame;
 using UnityEngine;
@@ -34,12 +35,21 @@ namespace _Game.Develop.Infrastructure.EntryPoint
         {
             ILoadingScreen loadingScreen = _globalContainer.Resolve<ILoadingScreen>();
             SceneSwitcherService sceneSwitcherService = _globalContainer.Resolve<SceneSwitcherService>();
+            PlayerDataProvider playerDataProvider = _globalContainer.Resolve<PlayerDataProvider>();
 
             loadingScreen.Show();
 
             ConfigProviderService configsProvider = _globalContainer.Resolve<ConfigProviderService>();
-
             yield return configsProvider.LoadAsync();
+
+            bool isPlayerDataSaveExists = false;
+            yield return playerDataProvider.IsExists(result => isPlayerDataSaveExists = result);
+
+            if (isPlayerDataSaveExists)
+                yield return playerDataProvider.Load();
+            else
+                playerDataProvider.Reset();
+
             yield return new WaitForSeconds(3f);
 
             loadingScreen.Hide();
