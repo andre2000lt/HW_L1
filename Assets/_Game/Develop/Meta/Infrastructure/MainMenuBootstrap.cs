@@ -1,9 +1,7 @@
 using System.Collections;
 using _Game.Develop.Infrastructure;
 using _Game.Develop.Infrastructure.DI;
-using _Game.Develop.Utils.ConfigServices;
 using _Game.Develop.Utils.ControllersManagement;
-using _Game.Develop.Utils.CorutinesManagement;
 using _Game.Develop.Utils.SceneManagement;
 using UnityEngine;
 
@@ -25,11 +23,7 @@ namespace _Game.Develop.Meta.Infrastructure
 
         public override IEnumerator Initialize()
         {
-            SceneSwitcherService sceneSwitcher = _container.Resolve<SceneSwitcherService>();
-            ConfigProviderService configsProvider = _container.Resolve<ConfigProviderService>();
-            ICoroutinesRunner coroutinesRunner = _container.Resolve<ICoroutinesRunner>();
-
-            _mainMenu = new MainMenu(sceneSwitcher, configsProvider, coroutinesRunner);
+            _mainMenu = _container.Resolve<MainMenu>();
 
             MainMenuControllersFactory controllersFactory = _container.Resolve<MainMenuControllersFactory>();
             _mainMenuController = controllersFactory.CreateMainMenuController(_mainMenu);
