@@ -3,7 +3,7 @@ using _Game.Develop.Meta.Features;
 
 namespace _Game.Develop.Utils.DataManagement
 {
-    public class PlayerData : ISaveData
+    public class WalletData : ISaveData
     {
         public Dictionary<CurrencyType, int> Currencies = new();
     }

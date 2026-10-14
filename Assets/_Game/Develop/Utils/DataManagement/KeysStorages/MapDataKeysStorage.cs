@@ -7,7 +7,8 @@ namespace _Game.Develop.Utils.DataManagement.KeysStorages
     {
         private readonly Dictionary<Type, string> _typeToKey = new()
         {
-            { typeof(PlayerData), "PlayerData" }
+            { typeof(WalletData), "WalletData" },
+            { typeof(StatsData), "StatsData" }
         };
 
         public string GetKeyFor<TData>() where TData : ISaveData

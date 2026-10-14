@@ -1,25 +1,24 @@
-using System;
 using System.Collections.Generic;
-using _Game.Develop.Gameplay;
+using _Game.Develop.Features.GameSettingsConfigs;
 using _Game.Develop.Meta.Features;
 using _Game.Develop.Utils.ConfigServices;
 
 namespace _Game.Develop.Utils.DataManagement.DataProviders
 {
-    public class PlayerDataProvider : DataProvider<PlayerData>
+    public class WalletDataProvider : DataProvider<WalletData>
     {
-        private ConfigProviderService _configProvider;
+        private readonly ConfigProviderService _configProvider;
 
-        public PlayerDataProvider(
+        public WalletDataProvider(
             ISaveLoadService saveLoadService,
             ConfigProviderService configProvider) : base(saveLoadService)
         {
             _configProvider = configProvider;
         }
 
-        protected override PlayerData GetOriginData()
+        protected override WalletData GetOriginData()
         {
-            PlayerData data = new()
+            WalletData data = new()
             {
                 Currencies = InitCurrencies()
             };
@@ -30,13 +29,12 @@ namespace _Game.Develop.Utils.DataManagement.DataProviders
         private Dictionary<CurrencyType, int> InitCurrencies()
         {
             Dictionary<CurrencyType, int> currencies = new();
-            DefaultCurrencyConfig defaultCurrencies = _configProvider.GetConfig<DefaultCurrencyConfig>();
 
-            foreach (CurrencyType currencyType in Enum.GetValues(typeof(CurrencyType)))
-            {
-                int amount = defaultCurrencies.GetAmountFor(currencyType);
-                currencies.Add(currencyType, amount);
-            }
+            GameSettingsConfig gameSettingsConfig = _configProvider.GetConfig<GameSettingsConfig>();
+
+            CurrencyType currencyType = gameSettingsConfig.SelectedCurrencyType;
+            int amount = gameSettingsConfig.StartBalance;
+            currencies.Add(currencyType, amount);
 
             return currencies;
         }

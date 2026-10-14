@@ -5,7 +5,7 @@ namespace _Game.Develop.Meta
 {
     public class MainMenuController : Controller
     {
-        private MainMenu _mainMenu;
+        private readonly MainMenu _mainMenu;
 
         public MainMenuController(MainMenu mainMenu)
         {
@@ -14,15 +14,33 @@ namespace _Game.Develop.Meta
 
         protected override void UpdateLogic(float deltaTime)
         {
-            HandleKeyPressed(KeyCode.Alpha1);
-            HandleKeyPressed(KeyCode.Alpha2);
+            HandleStartGameKeyPressed(KeyCode.Alpha1);
+            HandleStartGameKeyPressed(KeyCode.Alpha2);
+            HandleShowStatsKeyPressed(KeyCode.Alpha3);
+            HandleResetStatsKeyPressed(KeyCode.Alpha4);
         }
 
-        private void HandleKeyPressed(KeyCode key)
+        private void HandleStartGameKeyPressed(KeyCode key)
         {
             if (Input.GetKeyDown(key))
             {
                 _mainMenu.StartGame(key);
+            }
+        }
+
+        private void HandleShowStatsKeyPressed(KeyCode key)
+        {
+            if (Input.GetKeyDown(key))
+            {
+                _mainMenu.ShowStats();
+            }
+        }
+
+        private void HandleResetStatsKeyPressed(KeyCode key)
+        {
+            if (Input.GetKeyDown(key))
+            {
+                _mainMenu.ResetStats();
             }
         }
     }

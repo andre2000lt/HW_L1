@@ -35,6 +35,7 @@ namespace _Game.Develop.Utils.SceneManagement
 
             DIContainer sceneContainer = new(_globalContainer);
             bootstrap.ProcessRegistrations(sceneContainer, sceneData);
+            sceneContainer.Initialize();
 
             yield return bootstrap.Initialize();
 

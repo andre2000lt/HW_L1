@@ -1,11 +1,15 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace _Game.Develop.Utils.DataManagement.DataProviders
 {
     public abstract class DataProvider<TData> where TData : ISaveData
     {
-        private ISaveLoadService _saveLoadService;
+        private readonly ISaveLoadService _saveLoadService;
+
+        private readonly List<IDataReader<TData>> _readers = new();
+        private readonly List<IDataWriter<TData>> _writers = new();
 
         private TData _data;
 
@@ -14,14 +18,34 @@ namespace _Game.Develop.Utils.DataManagement.DataProviders
             _saveLoadService = saveLoadService;
         }
 
+        public void RegisterReader(IDataReader<TData> reader)
+        {
+            if (_readers.Contains(reader))
+                throw new Exception("Reader already registered");
+
+            _readers.Add(reader);
+        }
+
+        public void RegisterWriter(IDataWriter<TData> writer)
+        {
+            if (_writers.Contains(writer))
+                throw new Exception("Writer already registered");
+
+            _writers.Add(writer);
+        }
+
         public IEnumerator Save()
         {
+            UpdateDataFromWriters();
+
             yield return _saveLoadService.Save(_data);
         }
 
         public IEnumerator Load()
         {
             yield return _saveLoadService.Load<TData>(result => _data = result);
+
+            SendDataToReaders();
         }
 
         public IEnumerator IsExists(Action<bool> onExistsResult)
@@ -32,8 +56,26 @@ namespace _Game.Develop.Utils.DataManagement.DataProviders
         public void Reset()
         {
             _data = GetOriginData();
+
+            SendDataToReaders();
         }
 
         protected abstract TData GetOriginData();
+
+        private void SendDataToReaders()
+        {
+            foreach (IDataReader<TData> reader in _readers)
+            {
+                reader.ReadFrom(_data);
+            }
+        }
+
+        private void UpdateDataFromWriters()
+        {
+            foreach (IDataWriter<TData> writer in _writers)
+            {
+                writer.WriteTo(_data);
+            }
+        }
     }
 }

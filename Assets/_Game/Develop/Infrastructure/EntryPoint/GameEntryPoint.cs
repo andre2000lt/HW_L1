@@ -19,6 +19,7 @@ namespace _Game.Develop.Infrastructure.EntryPoint
 
             _globalContainer = new DIContainer();
             GlobalRegistrations.Process(_globalContainer);
+            _globalContainer.Initialize();
 
             ICoroutinesRunner coroutinesRunner = _globalContainer.Resolve<ICoroutinesRunner>();
             coroutinesRunner.Perform(InitializeProcess());
@@ -35,26 +36,46 @@ namespace _Game.Develop.Infrastructure.EntryPoint
         {
             ILoadingScreen loadingScreen = _globalContainer.Resolve<ILoadingScreen>();
             SceneSwitcherService sceneSwitcherService = _globalContainer.Resolve<SceneSwitcherService>();
-            PlayerDataProvider playerDataProvider = _globalContainer.Resolve<PlayerDataProvider>();
 
             loadingScreen.Show();
 
             ConfigProviderService configsProvider = _globalContainer.Resolve<ConfigProviderService>();
             yield return configsProvider.LoadAsync();
 
-            bool isPlayerDataSaveExists = false;
-            yield return playerDataProvider.IsExists(result => isPlayerDataSaveExists = result);
-
-            if (isPlayerDataSaveExists)
-                yield return playerDataProvider.Load();
-            else
-                playerDataProvider.Reset();
+            yield return ProcessInitializeWallet();
+            yield return ProcessInitializeStats();
 
             yield return new WaitForSeconds(3f);
 
             loadingScreen.Hide();
 
             yield return sceneSwitcherService.ProcessSwitchTo(SceneName.MainMenu);
+        }
+
+        private IEnumerator ProcessInitializeWallet()
+        {
+            WalletDataProvider walletDataProvider = _globalContainer.Resolve<WalletDataProvider>();
+
+            bool isWalletDataSaveExists = false;
+            yield return walletDataProvider.IsExists(result => isWalletDataSaveExists = result);
+
+            if (isWalletDataSaveExists)
+                yield return walletDataProvider.Load();
+            else
+                walletDataProvider.Reset();
+        }
+
+        private IEnumerator ProcessInitializeStats()
+        {
+            StatsDataProvider statsDataProvider = _globalContainer.Resolve<StatsDataProvider>();
+
+            bool isStatsDataSaveExists = false;
+            yield return statsDataProvider.IsExists(result => isStatsDataSaveExists = result);
+
+            if (isStatsDataSaveExists)
+                yield return statsDataProvider.Load();
+            else
+                statsDataProvider.Reset();
         }
     }
 }

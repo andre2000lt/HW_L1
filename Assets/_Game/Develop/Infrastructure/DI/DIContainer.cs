@@ -7,15 +7,15 @@ namespace _Game.Develop.Infrastructure.DI
     {
         private readonly Dictionary<Type, Registration> _container = new();
 
-        private List<Type> _requests = new();
-        private DIContainer _parent;
+        private readonly List<Type> _requests = new();
+        private readonly DIContainer _parent;
 
         public DIContainer(DIContainer parent = null)
         {
             _parent = parent;
         }
 
-        public void RegisterAsSingleton<T>(Func<DIContainer, T> instanceCreator)
+        public IRegistrationOptions RegisterAsSingleton<T>(Func<DIContainer, T> instanceCreator)
         {
             if (IsAlreadyRegistered<T>())
             {
@@ -24,6 +24,8 @@ namespace _Game.Develop.Infrastructure.DI
 
             Registration registration = new(container => instanceCreator(container));
             _container.Add(typeof(T), registration);
+
+            return registration;
         }
 
         public bool IsAlreadyRegistered<T>()
@@ -51,7 +53,7 @@ namespace _Game.Develop.Infrastructure.DI
             if (_container.TryGetValue(typeof(T), out Registration registration))
             {
                 _requests.Remove(typeof(T));
-                return (T)registration.GetInstance(this);
+                return (T)registration.CreateInstanceFrom(this);
             }
 
             if (_parent != null)
@@ -60,6 +62,17 @@ namespace _Game.Develop.Infrastructure.DI
             }
 
             throw new Exception($"Can't resolve instance of type {typeof(T)}");
+        }
+
+        public void Initialize()
+        {
+            foreach (Registration registration in _container.Values)
+            {
+                if (registration.IsNonLazy)
+                {
+                    registration.CreateInstanceFrom(this);
+                }
+            }
         }
     }
 }

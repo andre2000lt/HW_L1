@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace _Game.Develop.Gameplay
 {
-    [CreateAssetMenu(fileName = "DefaultCurrencyConfig", menuName = "Configs/PlayerData")]
+    [CreateAssetMenu(fileName = "DefaultCurrencyConfig", menuName = "Configs/WalletData")]
     public class DefaultCurrencyConfig : ScriptableObject
     {
         [SerializeField] private List<CurrencySettings> _currencies = new();

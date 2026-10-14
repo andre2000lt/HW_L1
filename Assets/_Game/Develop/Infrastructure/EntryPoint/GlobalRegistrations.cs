@@ -27,17 +27,33 @@ namespace _Game.Develop.Infrastructure.EntryPoint
             container.RegisterAsSingleton<ILoadingScreen>(CreateLoadingScreen);
             container.RegisterAsSingleton(CreateSceneLoaderService);
             container.RegisterAsSingleton(CreateSceneSwitcherService);
-            container.RegisterAsSingleton(CreateWalletService);
-            container.RegisterAsSingleton(CreatePlayerDataProvider);
+            container.RegisterAsSingleton(CreateWalletService).NonLazy();
+            container.RegisterAsSingleton(CreateWalletDataProvider);
+            container.RegisterAsSingleton(CreateStatsDataProvider);
+            container.RegisterAsSingleton(CreateStatsService).NonLazy();
             container.RegisterAsSingleton<ISaveLoadService>(CreateSaveLoadService);
         }
 
-        private static PlayerDataProvider CreatePlayerDataProvider(DIContainer container)
+        private static StatsDataProvider CreateStatsDataProvider(DIContainer container)
+        {
+            ISaveLoadService saveLoadService = container.Resolve<ISaveLoadService>();
+
+            return new StatsDataProvider(saveLoadService);
+        }
+
+        private static StatsService CreateStatsService(DIContainer container)
+        {
+            StatsDataProvider statsDataProvider = container.Resolve<StatsDataProvider>();
+
+            return new StatsService(statsDataProvider);
+        }
+
+        private static WalletDataProvider CreateWalletDataProvider(DIContainer container)
         {
             ISaveLoadService saveLoadService = container.Resolve<ISaveLoadService>();
             ConfigProviderService configProviderService = container.Resolve<ConfigProviderService>();
 
-            return new PlayerDataProvider(saveLoadService, configProviderService);
+            return new WalletDataProvider(saveLoadService, configProviderService);
         }
 
         private static SaveLoadService CreateSaveLoadService(DIContainer container)
@@ -60,12 +76,13 @@ namespace _Game.Develop.Infrastructure.EntryPoint
                 currencies[currencyType] = new ReactVariable<int>();
             }
 
-            return new WalletService(currencies);
+            WalletDataProvider walletDataProvider = container.Resolve<WalletDataProvider>();
+
+            return new WalletService(currencies, walletDataProvider);
         }
 
         private static SceneSwitcherService CreateSceneSwitcherService(DIContainer container)
         {
-            SceneSwitcherService sceneSwitcherService = new(container);
             return new SceneSwitcherService(container);
         }
 
