@@ -27,6 +27,12 @@ namespace _Game.Develop.Meta.Features
             DefeatCount++;
         }
 
+        public void Reset()
+        {
+            VictoryCount = 0;
+            DefeatCount = 0;
+        }
+
         public void ReadFrom(StatsData data)
         {
             VictoryCount = data.VictoryCount;

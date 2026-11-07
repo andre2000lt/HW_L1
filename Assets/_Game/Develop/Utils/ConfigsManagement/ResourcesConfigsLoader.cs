@@ -13,10 +13,9 @@ namespace _Game.Develop.Utils.ConfigServices
         private Dictionary<Type, string> _configPathByType = new()
         {
             { typeof(LevelConfigs), "Configs/LevelConfigs" },
-            { typeof(DefaultCurrencyConfig), "Configs/WalletData/DefaultCurrencyConfig" },
-            { typeof(GameSettingsConfig), "Configs/GameSettings/GameSettingsConfig" }
+            { typeof(GameSettingsConfig), "Configs/GameSettings/GameSettingsConfig" },
+            { typeof(CurrencyIconsConfig), "Configs/WalletData/CurrencyIconsConfig" }
         };
-
 
         public IEnumerator LoadAsync(Action<Dictionary<Type, object>> onConfigLoaded)
         {

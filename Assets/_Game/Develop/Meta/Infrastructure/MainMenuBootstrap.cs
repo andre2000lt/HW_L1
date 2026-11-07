@@ -1,18 +1,28 @@
+#region
+
 using System.Collections;
 using _Game.Develop.Infrastructure;
 using _Game.Develop.Infrastructure.DI;
+using _Game.Develop.Meta.Features;
+using _Game.Develop.UI.CommonView;
 using _Game.Develop.Utils.ControllersManagement;
 using _Game.Develop.Utils.SceneManagement;
 using UnityEngine;
+
+#endregion
 
 namespace _Game.Develop.Meta.Infrastructure
 {
     public class MainMenuBootstrap : SceneBootstrap
     {
+        [SerializeField] private IconTextListView _iconTextListView;
+
         private DIContainer _container;
 
         private MainMenu _mainMenu;
         private MainMenuController _mainMenuController;
+
+        private WalletService _walletService;
 
         public override void ProcessRegistrations(DIContainer container, ISceneData sceneData)
         {
@@ -24,6 +34,8 @@ namespace _Game.Develop.Meta.Infrastructure
         public override IEnumerator Initialize()
         {
             _mainMenu = _container.Resolve<MainMenu>();
+
+            _walletService = _container.Resolve<WalletService>();
 
             MainMenuControllersFactory controllersFactory = _container.Resolve<MainMenuControllersFactory>();
             _mainMenuController = controllersFactory.CreateMainMenuController(_mainMenu);
@@ -44,18 +56,12 @@ namespace _Game.Develop.Meta.Infrastructure
 
             if (Input.GetKeyDown(KeyCode.A))
             {
+                _walletService.AddCurrency(CurrencyType.Gold, 10);
             }
 
             if (Input.GetKeyDown(KeyCode.S))
             {
-            }
-
-            if (Input.GetKeyDown(KeyCode.Z))
-            {
-            }
-
-            if (Input.GetKeyDown(KeyCode.X))
-            {
+                _walletService.Spend(CurrencyType.Gold, 10);
             }
         }
     }

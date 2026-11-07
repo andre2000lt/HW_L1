@@ -1,4 +1,3 @@
-using System.Collections;
 using _Game.Develop.Features.GameSettingsConfigs;
 using _Game.Develop.Gameplay.Infrastructure;
 using _Game.Develop.Meta.Features;
@@ -6,7 +5,6 @@ using _Game.Develop.Utils;
 using _Game.Develop.Utils.ConfigServices;
 using _Game.Develop.Utils.ConfigServices.Configs;
 using _Game.Develop.Utils.CorutinesManagement;
-using _Game.Develop.Utils.DataManagement.DataProviders;
 using _Game.Develop.Utils.SceneManagement;
 using UnityEngine;
 
@@ -16,10 +14,10 @@ namespace _Game.Develop.Meta
     {
         private readonly SceneSwitcherService _sceneSwitcher;
         private readonly ICoroutinesRunner _coroutinesRunner;
-        private readonly WalletService _walletService;
-        private WalletDataProvider _walletDataProvider;
+
         private readonly StatsService _statsService;
-        private StatsDataProvider _statsDataProvider;
+        private readonly WalletService _walletService;
+        private readonly MarketService _marketService;
 
         private readonly LevelConfigs _levelConfigs;
         private readonly GameSettingsConfig _gameSettingsConfig;
@@ -28,21 +26,19 @@ namespace _Game.Develop.Meta
             SceneSwitcherService sceneSwitcher,
             ConfigProviderService configProvider,
             ICoroutinesRunner coroutinesRunner,
-            WalletService walletService,
-            WalletDataProvider walletDataProvider,
             StatsService statsService,
-            StatsDataProvider statsDataProvider
+            WalletService walletService,
+            MarketService marketService
         )
         {
             _sceneSwitcher = sceneSwitcher;
             _coroutinesRunner = coroutinesRunner;
-            _walletService = walletService;
-            _walletDataProvider = walletDataProvider;
+
             _statsService = statsService;
-            _statsDataProvider = statsDataProvider;
+            _walletService = walletService;
+            _marketService = marketService;
 
             _levelConfigs = configProvider.GetConfig<LevelConfigs>();
-            _gameSettingsConfig = configProvider.GetConfig<GameSettingsConfig>();
         }
 
         public void StartGame(KeyCode keyCode)
@@ -62,28 +58,7 @@ namespace _Game.Develop.Meta
 
         public void ResetStats()
         {
-            _coroutinesRunner.Perform(ResetStatsProcess());
-        }
-
-        private IEnumerator ResetStatsProcess()
-        {
-            int resetStatsCost = _gameSettingsConfig.ResetStatsCost;
-            CurrencyType currencyType = _gameSettingsConfig.SelectedCurrencyType;
-
-            if (_walletService.IsEnough(currencyType, resetStatsCost))
-            {
-                Debug.Log("Statistics reset ! ");
-
-                _statsDataProvider.Reset();
-                yield return _statsDataProvider.Save();
-
-                _walletService.Spend(CurrencyType.Gold, resetStatsCost);
-                yield return _walletDataProvider.Save();
-            }
-            else
-            {
-                Debug.Log("Not enough amount of: " + currencyType);
-            }
+            _coroutinesRunner.Perform(_marketService.ResetStatsProcess());
         }
     }
 }

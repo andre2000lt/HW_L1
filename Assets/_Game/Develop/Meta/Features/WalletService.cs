@@ -4,6 +4,7 @@ using System.Linq;
 using _Game.Develop.IReadOnlyReactVariable;
 using _Game.Develop.Utils.DataManagement;
 using _Game.Develop.Utils.DataManagement.DataProviders;
+using UnityEngine;
 
 namespace _Game.Develop.Meta.Features
 {
@@ -16,7 +17,7 @@ namespace _Game.Develop.Meta.Features
             WalletDataProvider dataProvider)
         {
             _currencies = new Dictionary<CurrencyType, ReactVariable<int>>(currencies);
-
+            Debug.Log("WalletService initialized");
             dataProvider.RegisterReader(this);
             dataProvider.RegisterWriter(this);
         }

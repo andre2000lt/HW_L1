@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using _Game.Develop.Infrastructure.DI;
 using _Game.Develop.IReadOnlyReactVariable;
 using _Game.Develop.Meta.Features;
+using _Game.Develop.UI;
+using _Game.Develop.UI.Core;
 using _Game.Develop.Utils.ConfigServices;
 using _Game.Develop.Utils.CorutinesManagement;
 using _Game.Develop.Utils.DataManagement;
@@ -31,7 +33,37 @@ namespace _Game.Develop.Infrastructure.EntryPoint
             container.RegisterAsSingleton(CreateWalletDataProvider);
             container.RegisterAsSingleton(CreateStatsDataProvider);
             container.RegisterAsSingleton(CreateStatsService).NonLazy();
+            container.RegisterAsSingleton(CreateMarketService);
             container.RegisterAsSingleton<ISaveLoadService>(CreateSaveLoadService);
+            container.RegisterAsSingleton(CreateGlobalPresentersFactory);
+            container.RegisterAsSingleton(CreateViewsFactory);
+        }
+
+        private static GlobalPresentersFactory CreateGlobalPresentersFactory(DIContainer container)
+        {
+            return new GlobalPresentersFactory(container);
+        }
+
+        private static MarketService CreateMarketService(DIContainer container)
+        {
+            StatsService statsService = container.Resolve<StatsService>();
+            StatsDataProvider statsDataProvider = container.Resolve<StatsDataProvider>();
+            WalletService walletService = container.Resolve<WalletService>();
+            WalletDataProvider walletDataProvider = container.Resolve<WalletDataProvider>();
+            ConfigProviderService configProviderService = container.Resolve<ConfigProviderService>();
+
+            return new MarketService(
+                statsService,
+                statsDataProvider,
+                walletService,
+                walletDataProvider,
+                configProviderService
+            );
+        }
+
+        private static ViewsFactory CreateViewsFactory(DIContainer container)
+        {
+            return new ViewsFactory();
         }
 
         private static StatsDataProvider CreateStatsDataProvider(DIContainer container)

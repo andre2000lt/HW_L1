@@ -1,5 +1,9 @@
+#region
+
 using System;
 using System.Collections.Generic;
+
+#endregion
 
 namespace _Game.Develop.Infrastructure.DI
 {
@@ -50,10 +54,16 @@ namespace _Game.Develop.Infrastructure.DI
 
             _requests.Add(typeof(T));
 
-            if (_container.TryGetValue(typeof(T), out Registration registration))
+            try
+            {
+                if (_container.TryGetValue(typeof(T), out Registration registration))
+                {
+                    return (T)registration.CreateInstanceFrom(this);
+                }
+            }
+            finally
             {
                 _requests.Remove(typeof(T));
-                return (T)registration.CreateInstanceFrom(this);
             }
 
             if (_parent != null)
@@ -72,6 +82,16 @@ namespace _Game.Develop.Infrastructure.DI
                 {
                     registration.CreateInstanceFrom(this);
                 }
+
+                registration.OnInitialize();
+            }
+        }
+
+        public void Dispose()
+        {
+            foreach (Registration registration in _container.Values)
+            {
+                registration.OnDispose();
             }
         }
     }

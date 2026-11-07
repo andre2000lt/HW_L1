@@ -1,4 +1,8 @@
+#region
+
 using System;
+
+#endregion
 
 namespace _Game.Develop.Infrastructure.DI
 {
@@ -25,6 +29,20 @@ namespace _Game.Develop.Infrastructure.DI
         public void NonLazy()
         {
             IsNonLazy = true;
+        }
+
+        public void OnInitialize()
+        {
+            if (_cachedInstance != null)
+                if (_cachedInstance is IInitializable initializable)
+                    initializable.Initialize();
+        }
+
+        public void OnDispose()
+        {
+            if (_cachedInstance != null)
+                if (_cachedInstance is IDisposable disposable)
+                    disposable.Dispose();
         }
     }
 }

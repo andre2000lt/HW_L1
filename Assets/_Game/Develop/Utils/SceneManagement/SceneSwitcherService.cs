@@ -1,9 +1,13 @@
+#region
+
 using System;
 using System.Collections;
 using _Game.Develop.Infrastructure;
 using _Game.Develop.Infrastructure.DI;
 using _MiniGame;
 using Object = UnityEngine.Object;
+
+#endregion
 
 namespace _Game.Develop.Utils.SceneManagement
 {
@@ -12,6 +16,8 @@ namespace _Game.Develop.Utils.SceneManagement
         private readonly DIContainer _globalContainer;
         private readonly ILoadingScreen _loadingScreen;
         private readonly SceneLoaderService _sceneLoaderService;
+
+        private DIContainer _sceneContainer;
 
         public SceneSwitcherService(DIContainer globalContainer)
         {
@@ -25,6 +31,8 @@ namespace _Game.Develop.Utils.SceneManagement
         {
             _loadingScreen.Show();
 
+            _sceneContainer?.Dispose();
+
             yield return _sceneLoaderService.LoadAsync(SceneName.Empty);
             yield return _sceneLoaderService.LoadAsync(sceneName);
 
@@ -33,9 +41,9 @@ namespace _Game.Develop.Utils.SceneManagement
             if (bootstrap == null)
                 throw new Exception($"Can't find {sceneName.ToString()} scene bootstrap");
 
-            DIContainer sceneContainer = new(_globalContainer);
-            bootstrap.ProcessRegistrations(sceneContainer, sceneData);
-            sceneContainer.Initialize();
+            _sceneContainer = new DIContainer(_globalContainer);
+            bootstrap.ProcessRegistrations(_sceneContainer, sceneData);
+            _sceneContainer.Initialize();
 
             yield return bootstrap.Initialize();
 
